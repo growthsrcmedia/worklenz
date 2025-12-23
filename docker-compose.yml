@@ -4,8 +4,8 @@ services:
       context: ./worklenz-frontend
       dockerfile: Dockerfile
     container_name: worklenz_frontend
-    ports:
-      - "3301:5000"
+    expose:
+      - "5000"
     depends_on:
       - backend
     restart: unless-stopped
@@ -20,8 +20,8 @@ services:
       context: ./worklenz-backend
       dockerfile: Dockerfile
     container_name: worklenz_backend
-    ports:
-      - "3302:3000"
+    expose:
+      - "3000"
     depends_on:
       db:
         condition: service_healthy

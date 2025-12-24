@@ -30,7 +30,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   transports: ["websocket"],
-  path: "/socket",
+  path: "/api/socket",
   cors: {
     origin: (process.env.SOCKET_IO_CORS || "*").split(",")
   },

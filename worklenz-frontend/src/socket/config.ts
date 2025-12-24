@@ -4,7 +4,7 @@ export const SOCKET_CONFIG = {
   url: config.socketUrl,
   options: {
     transports: ['websocket'],
-    path: '/api/socket',
+    path: '/socket',
     upgrade: true,
   },
 };

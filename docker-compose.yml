@@ -4,8 +4,8 @@ services:
       context: ./worklenz-frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
-        - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3000}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3300}
+        - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3300}
     container_name: worklenz_frontend
     ports:
       - "5000:5000"
@@ -13,8 +13,8 @@ services:
       - backend
     restart: unless-stopped
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
-      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3000}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3300}
+      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3300}
       - VITE_ENABLE_GOOGLE_LOGIN=${VITE_ENABLE_GOOGLE_LOGIN:-true}
     networks:
       - worklenz
@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
     container_name: worklenz_backend
     ports:
-      - "3000:3000"
+      - "3300:3000"
     depends_on:
       db:
         condition: service_healthy

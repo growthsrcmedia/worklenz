@@ -3,15 +3,19 @@ services:
     build:
       context: ./worklenz-frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+        - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3000}
     container_name: worklenz_frontend
-    expose:
-      - "5000"
+    ports:
+      - "5000:5000"
     depends_on:
       - backend
     restart: unless-stopped
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:3302}
-      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3302}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3000}
+      - VITE_ENABLE_GOOGLE_LOGIN=${VITE_ENABLE_GOOGLE_LOGIN:-true}
     networks:
       - worklenz
 
@@ -20,8 +24,8 @@ services:
       context: ./worklenz-backend
       dockerfile: Dockerfile
     container_name: worklenz_backend
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -34,24 +38,24 @@ services:
       - PORT=3000
       
       # Database Configuration (External PostgreSQL)
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=${DB_HOST:-worklenz_db}
       - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_NAME=${DB_NAME:-worklenz_db}
       - DB_MAX_CLIENTS=${DB_MAX_CLIENTS:-20}
       - USE_PG_NATIVE=${USE_PG_NATIVE:-false}
       
       # Session & Security
       - SESSION_NAME=${SESSION_NAME:-worklenz.sid}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - COOKIE_SECRET=${COOKIE_SECRET}
-      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET:-change-this-secret-in-production-123456789}
+      - COOKIE_SECRET=${COOKIE_SECRET:-change-this-cookie-secret-987654321}
+      - JWT_SECRET=${JWT_SECRET:-change-this-jwt-secret-abcdefghij}
       
       # CORS Configuration
-      - SERVER_CORS=${SERVER_CORS}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - SOCKET_IO_CORS=${SOCKET_IO_CORS}
+      - SERVER_CORS=${SERVER_CORS:-http://localhost:5000}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5000}
+      - SOCKET_IO_CORS=${SOCKET_IO_CORS:-http://localhost:5000}
       
       # Storage Configuration (MinIO/S3)
       - STORAGE_PROVIDER=${STORAGE_PROVIDER:-s3}

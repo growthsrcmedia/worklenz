@@ -7,6 +7,8 @@ services:
         - VITE_API_URL=${VITE_API_URL:-http://localhost:3300}
         - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3300}
     container_name: worklenz_frontend
+    ports:
+      - "5000:5000"
     depends_on:
       - backend
     restart: unless-stopped
@@ -14,23 +16,16 @@ services:
       - VITE_API_URL=${VITE_API_URL:-http://localhost:3300}
       - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3300}
       - VITE_ENABLE_GOOGLE_LOGIN=${VITE_ENABLE_GOOGLE_LOGIN:-true}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.worklenz-frontend.rule=Host(`${DOMAIN:-work.growsrcmedia.com}`)"
-      - "traefik.http.routers.worklenz-frontend.entrypoints=websecure"
-      - "traefik.http.routers.worklenz-frontend.tls=true"
-      - "traefik.http.routers.worklenz-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.worklenz-frontend.loadbalancer.server.port=5000"
-      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik-public}"
     networks:
       - worklenz
-      - traefik-public
 
   backend:
     build:
       context: ./worklenz-backend
       dockerfile: Dockerfile
     container_name: worklenz_backend
+    ports:
+      - "3300:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -83,19 +78,8 @@ services:
       - PRODUCTION_SERVER_URL=${PRODUCTION_SERVER_URL}
       - UAT_SERVER_URL=${UAT_SERVER_URL}
       - DEV_SERVER_URL=${DEV_SERVER_URL}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.worklenz-backend.rule=Host(`${DOMAIN:-work.growsrcmedia.com}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.worklenz-backend.entrypoints=websecure"
-      - "traefik.http.routers.worklenz-backend.tls=true"
-      - "traefik.http.routers.worklenz-backend.tls.certresolver=letsencrypt"
-      - "traefik.http.middlewares.worklenz-backend-stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.worklenz-backend.middlewares=worklenz-backend-stripprefix"
-      - "traefik.http.services.worklenz-backend.loadbalancer.server.port=3000"
-      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik-public}"
     networks:
       - worklenz
-      - traefik-public
 
   minio:
     image: minio/minio:latest
@@ -194,6 +178,3 @@ volumes:
 
 networks:
   worklenz:
-    driver: bridge
-  traefik-public:
-    external: true

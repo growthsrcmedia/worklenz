@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: worklenz_backend
     ports:
-      - "3300:3300"
+      - "3340:3340"
     depends_on:
       db:
         condition: service_healthy

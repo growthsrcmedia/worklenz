@@ -3,9 +3,6 @@ services:
     build:
       context: ./worklenz-frontend
       dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=${VITE_API_URL}
-        - VITE_SOCKET_URL=${VITE_SOCKET_URL}
     container_name: worklenz_frontend
     expose:
       - "5000"
@@ -13,9 +10,8 @@ services:
       - backend
     restart: unless-stopped
     environment:
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_SOCKET_URL=${VITE_SOCKET_URL}
-      - VITE_ENABLE_GOOGLE_LOGIN=${VITE_ENABLE_GOOGLE_LOGIN:-true}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3302}
+      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3302}
     networks:
       - worklenz
 
@@ -25,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: worklenz_backend
     expose:
-      - "3340"
+      - "3000"
     depends_on:
       db:
         condition: service_healthy

@@ -30,6 +30,7 @@ import {
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
   S3_URL,
+  S3_PUBLIC_URL,
   STORAGE_PROVIDER,
 } from "./constants";
 
@@ -37,7 +38,7 @@ import {
 const getEndpointFromUrl = () => {
   try {
     if (!S3_URL) return undefined;
-    
+
     // Extract the endpoint URL (e.g., http://minio:9000 from http://minio:9000/bucket)
     const url = new URL(S3_URL);
     return `${url.protocol}//${url.host}`;
@@ -76,15 +77,15 @@ if (STORAGE_PROVIDER === "azure") {
         AZURE_STORAGE_ACCOUNT_NAME,
         AZURE_STORAGE_ACCOUNT_KEY
       );
-      
+
       azureBlobServiceClient = new BlobServiceClient(
         `https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
         sharedKeyCredential
       );
-      
+
       const containerName = AZURE_STORAGE_CONTAINER || "ifinitycdn";
       azureContainerClient = azureBlobServiceClient.getContainerClient(containerName);
-      
+
       console.log(`Azure Blob Storage initialized with account: ${AZURE_STORAGE_ACCOUNT_NAME}, container: ${containerName}`);
     }
   } catch (error) {
@@ -107,7 +108,7 @@ export function getKey(
   const keyPath = path
     .join(getRootDir(), teamId, projectId, `${attachmentId}.${type}`)
     .replace(/\\/g, "/");
-  
+
   return keyPath;
 }
 
@@ -129,7 +130,7 @@ export function getTaskAttachmentKey(
       `${attachmentId}.${type}`
     )
     .replace(/\\/g, "/");
-  
+
   return keyPath;
 }
 
@@ -137,7 +138,7 @@ export function getAvatarKey(userId: string, type: string) {
   const keyPath = path
     .join("avatars", getRootDir(), `${userId}.${type}`)
     .replace(/\\/g, "/");
-  
+
   return keyPath;
 }
 
@@ -156,16 +157,16 @@ async function uploadBufferToS3(
     };
 
     await s3Client.send(new PutObjectCommand(bucketParams));
-    
+
     // Create proper URL depending on whether we're using S3 or MinIO
     const endpointUrl = getEndpointFromUrl();
     if (endpointUrl) {
       // For MinIO or custom S3 endpoint
       return `${endpointUrl}/${BUCKET}/${location}`;
     }
-    
-    // For standard AWS S3
-    return `${S3_URL}/${location}`;
+
+    // For standard AWS S3 or Public URL access
+    return `${S3_PUBLIC_URL}/${location}`;
   } catch (error) {
     log_error(error);
     return null;

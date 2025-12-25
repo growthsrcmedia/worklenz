@@ -9,7 +9,7 @@ for i in 1 2 3 4 5; do
   if /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin; then
     echo "Successfully connected to MinIO!"
     /usr/bin/mc mb --ignore-existing myminio/worklenz-bucket
-    /usr/bin/mc policy set public myminio/worklenz-bucket
+    /usr/bin/mc anonymous set public myminio/worklenz-bucket
     exit 0
   fi
 

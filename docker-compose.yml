@@ -10,7 +10,7 @@ services:
       - backend
     restart: unless-stopped
     env_file:
-      - ./worklenz-frontend/.env.production
+      - .env
     networks:
       - worklenz
 
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: worklenz_backend
     ports:
-      - "3000:3000"
+      - "3300:3300"
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
         condition: service_started
     restart: unless-stopped
     env_file:
-      - ./worklenz-backend/.env
+      - .env
     networks:
       - worklenz
 

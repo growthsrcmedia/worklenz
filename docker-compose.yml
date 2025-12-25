@@ -4,14 +4,13 @@ services:
       context: ./worklenz-frontend
       dockerfile: Dockerfile
     container_name: worklenz_frontend
-    expose:
-      - "5000"
+    ports:
+      - "5000:5000"
     depends_on:
       - backend
     restart: unless-stopped
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:3302}
-      - VITE_SOCKET_URL=${VITE_SOCKET_URL:-ws://localhost:3302}
+    env_file:
+      - .env
     networks:
       - worklenz
 
@@ -20,60 +19,16 @@ services:
       context: ./worklenz-backend
       dockerfile: Dockerfile
     container_name: worklenz_backend
-    expose:
-      - "3000"
+    ports:
+      - "3300:3300"
     depends_on:
       db:
         condition: service_healthy
       minio:
         condition: service_started
     restart: unless-stopped
-    environment:
-      # Server Configuration
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=3000
-      
-      # Database Configuration (External PostgreSQL)
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_MAX_CLIENTS=${DB_MAX_CLIENTS:-20}
-      - USE_PG_NATIVE=${USE_PG_NATIVE:-false}
-      
-      # Session & Security
-      - SESSION_NAME=${SESSION_NAME:-worklenz.sid}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - COOKIE_SECRET=${COOKIE_SECRET}
-      - JWT_SECRET=${JWT_SECRET}
-      
-      # CORS Configuration
-      - SERVER_CORS=${SERVER_CORS}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - SOCKET_IO_CORS=${SOCKET_IO_CORS}
-      
-      # Storage Configuration (MinIO/S3)
-      - STORAGE_PROVIDER=${STORAGE_PROVIDER:-s3}
-      - S3_URL=${S3_URL:-http://worklenz_minio:9000}
-      - S3_BUCKET=${S3_BUCKET:-worklenz-attachments}
-      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-minioadmin}
-      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-minioadmin}
-      - S3_REGION=${S3_REGION:-us-east-1}
-      
-      # AWS Configuration
-      - AWS_REGION=${AWS_REGION:-us-east-1}
-      - ENABLE_EMAIL_CRONJOBS=${ENABLE_EMAIL_CRONJOBS:-false}
-      
-      # Google OAuth Configuration
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
-      
-      # Server URLs
-      - PRODUCTION_SERVER_URL=${PRODUCTION_SERVER_URL}
-      - UAT_SERVER_URL=${UAT_SERVER_URL}
-      - DEV_SERVER_URL=${DEV_SERVER_URL}
+    env_file:
+      - .env
     networks:
       - worklenz
 
@@ -155,7 +110,8 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./pg_backups:/pg_backups
+      - ./pg_backups:/pg_backups #host dir for backups files
+    #setup bassh loop to backup data evey 24h
     command: >
            bash -c 'while true; do
               sleep 86400;

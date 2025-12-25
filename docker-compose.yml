@@ -11,8 +11,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    networks:
-      - worklenz
 
   backend:
     build:
@@ -29,8 +27,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    networks:
-      - worklenz
 
   minio:
     image: minio/minio:latest
@@ -45,8 +41,6 @@ services:
     volumes:
       - worklenz_minio_data:/data
     command: server /data --console-address ":9001"
-    networks:
-      - worklenz
 
   # MinIO setup helper - creates default bucket on startup
   createbuckets:
@@ -58,8 +52,6 @@ services:
     entrypoint: ["/bin/sh", "/scripts/createbuckets-entrypoint.sh"]
     volumes:
       - ./docker/createbuckets-entrypoint.sh:/scripts/createbuckets-entrypoint.sh:ro
-    networks:
-      - worklenz
   db:
     image: postgres:15
     container_name: worklenz_db
@@ -78,8 +70,6 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
-    networks:
-      - worklenz
     volumes:
       - worklenz_postgres_data:/var/lib/postgresql/data
       - ./docker/db-init-wrapper.sh:/usr/local/bin/db-init-wrapper.sh:ro
@@ -120,13 +110,9 @@ services:
               find /pg_backups -type f -name "*.sql" -mtime +30 -delete;
             done'
     restart: unless-stopped
-    networks:
-      - worklenz
 
 volumes:
   worklenz_postgres_data:
   worklenz_minio_data:
   pgdata:
 
-networks:
-  worklenz:
